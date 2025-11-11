@@ -130,22 +130,28 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbwW4M38ECFcQh4jnfxrdgv-QNzDI_yLb2As5Mjg9wPChq40N9f5Zwi1BQY3bwzAkxIz/exec"; // replace this with your Google Script URL
     const form = document.getElementById('waitlist-form');
     const successMsg = document.getElementById('success-msg');
-  
+    
     form.addEventListener('submit', e => {
       e.preventDefault();
       const email = document.getElementById('email').value;
-  
+    
       fetch(scriptURL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       })
-      .then(response => {
-        successMsg.style.display = 'block';
-        form.reset();
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 'success') {
+          successMsg.style.display = 'block';
+          form.reset();
+        } else {
+          alert('Error: ' + result.message);
+        }
       })
       .catch(error => console.error('Error!', error.message));
     });
+
   </script>
 
 
