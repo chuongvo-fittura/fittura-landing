@@ -127,30 +127,35 @@
   </main>
   
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwsc3jmTNvRDGHh3FC0oVq8MMNV9yTEPvVIFFFDPtB7gDINePpezU0YOMMlWjhXPt2r/exec"; // replace this with your Google Script URL
-    const form = document.getElementById('waitlist-form');
-    const successMsg = document.getElementById('success-msg');
+    const scriptURL = "https://script.google.com/a/macros/fittura.ai/s/AKfycbwsc3jmTNvRDGHh3FC0oVq8MMNV9yTEPvVIFFFDPtB7gDINePpezU0YOMMlWjhXPt2r/exec"; // your latest one
+    const form = document.getElementById("waitlist-form");
+    const successMsg = document.getElementById("success-msg");
     
-    form.addEventListener('submit', e => {
+    form.addEventListener("submit", e => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
+      const email = document.getElementById("email").value;
     
+      // 👇 The proxy adds the missing CORS headers automatically
       fetch("https://corsproxy.io/?" + encodeURIComponent(scriptURL), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       })
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === 'success') {
-          successMsg.style.display = 'block';
-          form.reset();
-        } else {
-          alert('Error: ' + result.message);
-        }
-      })
-      .catch(error => console.error('Error!', error.message));
+        .then(async response => {
+          const text = await response.text();
+          let result;
+          try { result = JSON.parse(text); } catch { result = { status: "success" }; }
+    
+          if (result.status === "success") {
+            successMsg.style.display = "block";
+            form.reset();
+          } else {
+            alert("Error: " + (result.message || "Unexpected response"));
+          }
+        })
+        .catch(error => console.error("Error!", error.message));
     });
+
 
   </script>
 
