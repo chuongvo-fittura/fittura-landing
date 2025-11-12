@@ -34,7 +34,13 @@
     
     @media (max-width: 600px) {
       header img {
-        height: 80px;
+        height: 100px;    /* bigger on mobile */
+        max-width: 240px; /* maintain aspect ratio */
+      }
+    
+      header {
+        justify-content: center;  /* centers the logo horizontally */
+        padding: 2rem 0;          /* gives breathing space on top */
       }
     }
 
