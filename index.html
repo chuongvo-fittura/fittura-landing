@@ -165,50 +165,51 @@
   </footer>
 
   <script>
-    const scriptURL = "https://script.google.com/a/macros/fittura.ai/s/AKfycbwsc3jmTNvRDGHh3FC0oVq8MMNV9yTEPvVIFFFDPtB7gDINePpezU0YOMMlWjhXPt2r/exec";
-    const form = document.getElementById("waitlist-form");
-    const successMsg = document.getElementById("success-msg");
-    const countEl = document.getElementById("waitlist-count");
+  const scriptURL = "https://script.google.com/macros/s/AKfycbwsc3jmTNvRDGHh3FC0oVq8MMNV9yTEPvVIFFFDPtB7gDINePpezU0YOMMlWjhXPt2r/exec";
+  const form = document.getElementById("waitlist-form");
+  const successMsg = document.getElementById("success-msg");
+  const countEl = document.getElementById("waitlist-count");
 
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
 
-      fetch("https://corsproxy.io/?" + encodeURIComponent(scriptURL), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+    fetch("https://corsproxy.io/?" + scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    })
+      .then(async response => {
+        const text = await response.text();
+        let result;
+        try { result = JSON.parse(text); } catch { result = { status: "success" }; }
+
+        if (result.status === "success") {
+          successMsg.style.display = "block";
+          form.reset();
+          updateWaitlistCount(); // refresh count after join
+        } else {
+          alert("Error: " + (result.message || "Unexpected response"));
+        }
       })
-        .then(async response => {
-          const text = await response.text();
-          let result;
-          try { result = JSON.parse(text); } catch { result = { status: "success" }; }
+      .catch(error => console.error("Error!", error.message));
+  });
 
-          if (result.status === "success") {
-            successMsg.style.display = "block";
-            form.reset();
-            updateWaitlistCount(); // refresh count after join
-          } else {
-            alert("Error: " + (result.message || "Unexpected response"));
-          }
-        })
-        .catch(error => console.error("Error!", error.message));
-    });
+  // Fetch and show waitlist count
+  function updateWaitlistCount() {
+    fetch("https://corsproxy.io/?" + scriptURL)
+      .then(res => res.json())
+      .then(data => {
+        if (data.count) {
+          countEl.textContent = `🔥 ${data.count.toLocaleString()} people already joined the waitlist!`;
+          countEl.classList.add("visible");
+        }
+      })
+      .catch(err => console.error("Error loading count:", err));
+  }
 
-    // Fetch and show waitlist count
-    function updateWaitlistCount() {
-      fetch("https://corsproxy.io/?" + encodeURIComponent(scriptURL))
-        .then(res => res.json())
-        .then(data => {
-          if (data.count) {
-            countEl.textContent = `🔥 ${data.count.toLocaleString()} people already joined the waitlist!`;
-            countEl.classList.add("visible");
-          }
-        })
-        .catch(err => console.error("Error loading count:", err));
-    }
+  updateWaitlistCount();
+</script>
 
-    updateWaitlistCount();
-  </script>
 </body>
 </html>
