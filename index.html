@@ -28,8 +28,8 @@
     }
 
     header img {
-      height: 120px;
-      max-width: 200px;
+      height: 200px;
+      max-width: 480px;
     }
     
     @media (max-width: 600px) {
@@ -100,6 +100,22 @@
     input[type="email"]:focus {
       outline: none;
     }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px; /* adds nice vertical spacing on mobile */
+      margin-top: 1.5rem;
+    }
+    
+    @media (min-width: 600px) {
+      form {
+        flex-direction: row; /* side-by-side on desktop */
+        gap: 10px;
+      }
+    }
+
   </style>
 </head>
 <body>
