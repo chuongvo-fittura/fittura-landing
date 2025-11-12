@@ -182,15 +182,15 @@
       .then(async response => {
         const text = await response.text();
         let result;
-        try { result = JSON.parse(text); } catch { result = { status: "success" }; }
+        //try { result = JSON.parse(text); } catch { result = { status: "success" }; }
 
-        if (result.status === "success") {
+        //if (result.status === "success") {
           successMsg.style.display = "block";
           form.reset();
           updateWaitlistCount(); // refresh count after join
-        } else {
+        //} else {
           //alert("Error: " + (result.message || "Unexpected response"));
-        }
+        //}
       })
       .catch(error => console.error("Error!", error.message));
   });
