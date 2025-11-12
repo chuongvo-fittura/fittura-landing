@@ -24,23 +24,22 @@
     header {
       display: flex;
       align-items: center;
-      padding: 1.5rem 3rem;
+      justify-content: center;
+      padding: 2rem 3rem;
     }
 
     header img {
       height: 200px;
       max-width: 480px;
     }
-    
+
     @media (max-width: 600px) {
       header img {
-        height: 200px;    /* bigger on mobile */
-        max-width: 480px; /* maintain aspect ratio */
+        height: 200px;
+        max-width: 480px;
       }
-    
       header {
-        justify-content: center;  /* centers the logo horizontally */
-        padding: 2rem 0;          /* gives breathing space on top */
+        padding: 2rem 0;
       }
     }
 
@@ -100,28 +99,41 @@
     }
 
     form {
-      margin-top: 1.5rem;
-    }
-    
-    input[type="email"]:focus {
-      outline: none;
-    }
-
-    form {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px; /* adds nice vertical spacing on mobile */
+      gap: 12px;
       margin-top: 1.5rem;
     }
-    
+
     @media (min-width: 600px) {
       form {
-        flex-direction: row; /* side-by-side on desktop */
+        flex-direction: row;
         gap: 10px;
       }
     }
 
+    input[type="email"] {
+      padding: 0.9rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      width: 250px;
+    }
+
+    input[type="email"]:focus {
+      outline: none;
+    }
+
+    #waitlist-count {
+      margin-top: 1rem;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 1.2s ease-in;
+    }
+
+    #waitlist-count.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -132,32 +144,36 @@
   <main>
     <h1>AI Stylist That Helps You Find Clothes That Truly Fit</h1>
     <p>Discover outfits that match your body, taste, and lifestyle — powered by AI. Launching Early 2026.</p>
-  
+
     <form id="waitlist-form">
       <input 
         type="email" 
         id="email" 
         name="email" 
         placeholder="Enter your email" 
-        required 
-        style="padding: 0.9rem 1.2rem; border-radius: 999px; border: none; width: 250px; margin-right: 10px;"
+        required
       >
       <button type="submit" class="cta-button">Join Waitlist</button>
     </form>
-  
+
     <p id="success-msg" style="display:none; margin-top: 1rem; font-weight: 500;">🎉 Thanks! You’re on the list.</p>
+    <p id="waitlist-count"></p>
   </main>
-  
+
+  <footer>
+    <p>Contact us: <a href="mailto:hello@fittura.ai">hello@fittura.ai</a></p>
+  </footer>
+
   <script>
-    const scriptURL = "https://script.google.com/a/macros/fittura.ai/s/AKfycbwsc3jmTNvRDGHh3FC0oVq8MMNV9yTEPvVIFFFDPtB7gDINePpezU0YOMMlWjhXPt2r/exec"; // your latest one
+    const scriptURL = "https://script.google.com/a/macros/fittura.ai/s/AKfycbwsc3jmTNvRDGHh3FC0oVq8MMNV9yTEPvVIFFFDPtB7gDINePpezU0YOMMlWjhXPt2r/exec";
     const form = document.getElementById("waitlist-form");
     const successMsg = document.getElementById("success-msg");
-    
+    const countEl = document.getElementById("waitlist-count");
+
     form.addEventListener("submit", e => {
       e.preventDefault();
       const email = document.getElementById("email").value;
-    
-      // 👇 The proxy adds the missing CORS headers automatically
+
       fetch("https://corsproxy.io/?" + encodeURIComponent(scriptURL), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -167,10 +183,11 @@
           const text = await response.text();
           let result;
           try { result = JSON.parse(text); } catch { result = { status: "success" }; }
-    
+
           if (result.status === "success") {
             successMsg.style.display = "block";
             form.reset();
+            updateWaitlistCount(); // refresh count after join
           } else {
             alert("Error: " + (result.message || "Unexpected response"));
           }
@@ -178,12 +195,20 @@
         .catch(error => console.error("Error!", error.message));
     });
 
+    // Fetch and show waitlist count
+    function updateWaitlistCount() {
+      fetch("https://corsproxy.io/?" + encodeURIComponent(scriptURL))
+        .then(res => res.json())
+        .then(data => {
+          if (data.count) {
+            countEl.textContent = `🔥 ${data.count.toLocaleString()} people already joined the waitlist!`;
+            countEl.classList.add("visible");
+          }
+        })
+        .catch(err => console.error("Error loading count:", err));
+    }
 
+    updateWaitlistCount();
   </script>
-
-
-  <footer>
-    <p>Contact us: <a href="mailto:hello@fittura.ai">hello@fittura.ai</a></p>
-  </footer>
 </body>
 </html>
